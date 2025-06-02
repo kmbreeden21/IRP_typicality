@@ -45,16 +45,19 @@ const save_data = {
     action: "save",
     experiment_id: "MNeCPpLJh3wg",
     filename: filename,
-    data_string: ()=>jsPsych.data.get().csv(),
-    success_callback: function() {
-        console.log('Data saved successfully to DataPipe');
-        jsPsych.data.addProperties({
-            completed: true
-        });
-    },
-    error_callback: function(error) {
-        console.error('Error saving to DataPipe:', error);
+    data_string: () => jsPsych.data.get().csv(),
+    on_finish: function(data) {
+        console.log('DataPipe trial finished. Data object:', data);
+        if (data.success) {
+            console.log('✅ SUCCESS: Data saved successfully to DataPipe!');
+            console.log('Filename:', filename);
+            console.log('Experiment ID: MNeCPpLJh3wg');
+        } else {
+            console.error('❌ ERROR: Failed to save data to DataPipe');
+            console.error('Error details:', data.error || 'No error details provided');
+            console.error('Check your experiment ID and DataPipe connection');
+        }
     }
-  };
+};
 
 jsPsych.run([instructions, trials_with_variables, save_data]);
