@@ -156,7 +156,7 @@ const consent = {
 
 let continue_space =
     "<div class='right small'>(press SPACE to continue)</div>";
-    
+
 var instructions = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `<p class="lead">In this HIT, you will see various images of familiar objects. For each image, please rate how typical it is of its category.
@@ -168,6 +168,9 @@ var instructions = {
     //     trial_type: 'instruction'
     // }
 };
+
+
+/////// STIMULUS TRIALS AND STRUCTURE ///////
 
 // Create paired image-category objects
 var images_paired = [];
@@ -181,17 +184,8 @@ for (let i = 0; i < image_list.length; i++) {
 // Now shuffle the paired objects to randomize the order
 var images_random = jsPsych.randomization.shuffle(images_paired);
 
-// var fixation = {
-//     type: jsPsychHtmlKeyboardResponse,
-//     stimulus: '+',
-//     trial_duration: 500,
-//     response_ends_trial: false,
-//     data: {
-//         task: 'fixation',
-//         trial_type: 'fixation'
-//     }
-// };
 
+// Show five buttons with text in them for participants to answer the Question about how typical an object is of a certain category.
 var trial = {
     type: jsPsychHtmlButtonResponse,
     stimulus: function() {
@@ -219,10 +213,14 @@ var trial = {
     }
 };
 
+// Define list of trials. (Feed the shuffled images into the timeline trial structure)
 var trials_with_variables = {
     timeline: [trial],
     timeline_variables: images_random
 };
+
+
+/////// DEFINE POST EXPERIMENT TRIALS ///////
 
 // Define trial to give completion code to participant and to tell them they will complete a final survey 
 const completion_code_trial = {
@@ -241,7 +239,151 @@ const completion_code_trial = {
     }
 };
 
-// Configure data saving - THIS IS THE KEY FIX
+////// TO DO: ADD DEMOGRAPHICS BLOCK HERE //////
+// Demographics trials converted to jsPsych format
+const demographics_gender = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: '<p>What is your gender?</p>',
+    choices: ['Male', 'Female', 'Other', 'Prefer not to say'],
+    data: {
+        trial_type: 'demographics',
+        question: 'gender'
+    },
+    on_finish: function(data) {
+        data.response_text = data.choices[data.response];
+    }
+};
+
+const demographics_native = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: '<p>Are you a native English speaker?</p>',
+    choices: ['Yes', 'No'],
+    data: {
+        trial_type: 'demographics',
+        question: 'native_english'
+    },
+    on_finish: function(data) {
+        data.response_text = data.choices[data.response];
+        // Store response for conditional logic
+        jsPsych.data.addProperties({
+            native_english: data.response === 0 ? 'Yes' : 'No'
+        });
+    }
+};
+
+const demographics_native_language = {
+    type: jsPsychSurveyText,
+    questions: [
+        {
+            prompt: 'Please indicate your native language or languages:',
+            name: 'native_language',
+            required: true
+        }
+    ],
+    data: {
+        trial_type: 'demographics',
+        question: 'native_language'
+    },
+    conditional_function: function() {
+        // Only show if they answered "No" to native English
+        const lastTrial = jsPsych.data.get().last(1).values()[0];
+        return lastTrial.response === 1; // 1 = "No"
+    }
+};
+
+const demographics_other_languages = {
+    type: jsPsychSurveyText,
+    questions: [
+        {
+            prompt: "What other languages do you speak? Please enter 'none' if just English.",
+            name: 'other_languages',
+            required: false
+        }
+    ],
+    data: {
+        trial_type: 'demographics',
+        question: 'other_languages'
+    }
+};
+
+const demographics_age = {
+    type: jsPsychSurveyText,
+    questions: [
+        {
+            prompt: 'How old are you?',
+            name: 'age',
+            required: false
+        }
+    ],
+    data: {
+        trial_type: 'demographics',
+        question: 'age'
+    }
+};
+
+const demographics_education = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: '<p>What is the highest degree or level of school you have completed? If currently enrolled, indicate highest degree received.</p>',
+    choices: [
+        'Less than high school',
+        'High school diploma', 
+        'Some college, no degree',
+        "Associate's degree",
+        "Bachelor's degree",
+        'PhD, law, or medical degree',
+        'Prefer not to say'
+    ],
+    data: {
+        trial_type: 'demographics',
+        question: 'education'
+    },
+    on_finish: function(data) {
+        data.response_text = data.choices[data.response];
+    }
+};
+
+const demographics_comments = {
+    type: jsPsychSurveyText,
+    questions: [
+        {
+            prompt: 'If you have any comments for us, please enter them here:',
+            name: 'comments',
+            required: false,
+            rows: 3
+        }
+    ],
+    data: {
+        trial_type: 'demographics',
+        question: 'comments'
+    }
+};
+
+// Create demographics timeline with conditional native language question
+const demographics_timeline = {
+    timeline: [
+        demographics_gender,
+        demographics_native,
+        {
+            timeline: [demographics_native_language],
+            conditional_function: function() {
+                // Show native language question only if they answered "No" to being native English speaker
+                const nativeResponse = jsPsych.data.get().filter({question: 'native_english'}).values();
+                if (nativeResponse.length > 0) {
+                    return nativeResponse[nativeResponse.length - 1].response === 1; // 1 = "No"
+                }
+                return false;
+            }
+        },
+        demographics_other_languages,
+        demographics_age,
+        demographics_education,
+        demographics_comments
+    ]
+};
+
+/////// CONFIGURE THE DATA SAVING STEP ///////
+
+// Configure data saving 
 const save_data = {
     type: jsPsychPipe,
     action: "save",
@@ -262,4 +404,6 @@ const save_data = {
     }
 };
 
-jsPsych.run([consent, fullscreen_trial, instructions, trials_with_variables, end_fullscreen, completion_code_trial, save_data]);
+
+/////// FINAL EXPERIMENT STRUCTURE ///////
+jsPsych.run([consent, fullscreen_trial, instructions, trials_with_variables, end_fullscreen, completion_code_trial, demographics_timeline, save_data]);
