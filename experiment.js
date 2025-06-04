@@ -26,14 +26,14 @@ function extractAllCategories(image_path_list) {
     resultList.push(processedImg);
     }
 
-    console.log(resultList)
+    // console.log(resultList) // Debug log
     return resultList;
 
 }
 
 // Function to extract a category from image filename 
 function extractCategory(imagePath) {
-    console.log('Processing image:', imagePath); // Debug log
+    // console.log('Processing image:', imagePath); // Debug log
     
     // Extract filename from path and remove extension
     const filename = imagePath.split('/').pop().replace(/\.(png|jpg|jpeg)$/i, '');
@@ -41,12 +41,12 @@ function extractCategory(imagePath) {
     // Remove numbers and get base category name
     let category = filename.replace(/\d+$/, ''); // Remove trailing numbers
     
-    console.log('Extracted category:', category); // Debug log
+    // console.log('Extracted category:', category); // Debug log
     
     // Use mapping if available, otherwise return cleaned category
     const finalCategory = categoryMappings[category];
     
-    console.log('Final category:', finalCategory); // Debug log
+    // console.log('Final category:', finalCategory); // Debug log
     
     return finalCategory;
 }
@@ -75,6 +75,7 @@ if (workerId.startsWith("Test")) {
     console.log("Test Run")
     console.log(image_list)
 } else {
+    console.log(workerId)
     category_list = extractAllCategories(imageList);
     image_list = imageList;
     console.log(workerId.startsWith("Test"))
