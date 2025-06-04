@@ -58,6 +58,7 @@ jsPsych.data.addProperties({
     condition: null
 });
 
+// Create completion code trial for the end of the task
 const completion_code_trial = {
     type: jsPsychHtmlButtonResponse,
     stimulus: function() {
@@ -82,7 +83,7 @@ const fullscreen_trial = {
     button_label: null,
     message: null
 };
-
+ //Non-fullscreen trials
 const end_fullscreen = {
     type: jsPsychFullscreen,
     fullscreen_mode: false,
