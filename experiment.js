@@ -1,13 +1,4 @@
-// var jsPsych = initJsPsych({
-//     on_finish: function() {
-//         console.log('Experiment finished');
-//     }
-// });
-
-
-// Generate participant ID at the start
-let participant_id = `participant${Math.floor(Math.random() * 999) + 1}`;
-const completion_code = generateRandomString(3) + 'zvz' + generateRandomString(3);
+// FUNCTION DECLARATIONS // 
 
 // Function to generate a random string of specified length
 function generateRandomString(length) {
@@ -24,6 +15,11 @@ function getUrlParam(param) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(param);
 }
+
+
+// Generate participant ID and completion code for participant to add to mturk
+let participant_id = `participant${Math.floor(Math.random() * 999) + 1}`;
+const completion_code = generateRandomString(3) + 'zvz' + generateRandomString(3);
 
 // Get MTurk Worker ID from URL
 const workerId = getUrlParam('workerId');
@@ -172,14 +168,6 @@ const consent = {
     }
 };
 
-// var images = {
-//     image: imageList
-// };
-// var images = {
-//     image: imageList,
-//     category: category_list
-// };
-
 // Create paired image-category objects
 var images_paired = [];
 for (let i = 0; i < image_list.length; i++) {
@@ -207,46 +195,6 @@ var fixation = {
         trial_type: 'fixation'
     }
 };
-
-// var trial = {
-//     type: jsPsychImageKeyboardResponse,
-//     prompt: '<p> How typical is this object of its category? "1 (Very typical)", "2", "3", "4", "5 (Very atypical)" </p>',
-//     stimulus: jsPsych.timelineVariable('image_test'),
-//     choices: ['1', '2', '3', '4', '5'],
-//     data: {
-//         task: 'typicality_rating',
-//         trial_type: 'main_trial'
-//     }
-// };
-
-// // Fixed trial using HTML button response plugin
-// var trial = {
-//     type: jsPsychHtmlButtonResponse,
-//     stimulus: function() {
-//         const imageUrl = jsPsych.timelineVariable('image');
-//         const category = jsPsych.timelineVariable('category');
-//         console.log(imageUrl);
-//         return `
-//             <div style="text-align: center;">
-//                 <img src="${imageUrl}" style="max-width: 400px; max-height: 400px; margin-bottom: 20px;">
-//                 <p style="font-size: 18px; margin-bottom: 20px;">How typical is this object of <strong>${category}s</strong> in general?</p>
-//             </div>
-//         `;
-//     },
-//     choices: ['1<br>Very Typical', '2', '3', '4', '5<br>Very Atypical'],
-//     button_html: '<button class="jspsych-btn" style="padding: 15px 25px; font-size: 16px; margin: 5px; width: 120px; height: 60px;">%choice%</button>',
-//     prompt: '<p style="margin-top: 15px; color: #666; font-style: italic;">You can also use keyboard keys 1-5</p>',
-//     data: {
-//         task: 'typicality_rating',
-//         trial_type: 'main_trial',
-//         category: jsPsych.timelineVariable('category'),
-//         image: jsPsych.timelineVariable('image')
-//     },
-//     on_finish: function(data) {
-//         // Convert button response (0-4) to rating scale (1-5)
-//         data.rating = data.response + 1;
-//     }
-// };
 
 
 var trial = {
@@ -286,29 +234,13 @@ var instructions = {
     stimulus: `<p class="lead">In this HIT, you will see various images of familiar objects. For each image, please rate how typical it is of its category.
               For example, you may be shown a motorcycles and asked how typical it is of motorcyles in general. You may be shown a plate and asked how typical it is of plates in general.
               </p> <p class="lead">Use the  1-5 keys on the keyboard to respond. 1 means very typical. 5 means very atypical. Please try to use the entire scale, not just the 1/5 keys. If you rush through without attending to the images, we may deny payment.
-              </p> ${continue_space}`,
-    data: {
-        task: 'instructions',
-        trial_type: 'instruction'
-    }
+              </p> ${continue_space}`
+    // data: {
+    //     task: 'instructions',
+    //     trial_type: 'instruction'
+    // }
 };
 
-// let instructions = {
-//     type: "instructions",
-//     key_forward: "space",
-//     key_backward: "backspace",
-//     pages: [
-//       /*html*/ `<p class="lead">In this HIT, you will see various images of familiar objects. For each image, please rate how typical it is of its category.
-//             For example, you may be shown a series of motorcycles and asked how typical each one is of motorcyles in general.
-//             </p> <p class="lead">Use the  1-5 keys on the keyboard to respond. 1 means very typical. 5 means very atypical. Please try to use the entire scale, not just the 1/5 keys. If you rush through without attending to the images, we may deny payment.
-//             </p> ${continue_space}`
-//     ]
-//   };
-
-// // Add subject ID to all data
-// jsPsych.data.addProperties({
-//     subject_id: subject_id
-// });
 
 // Configure data saving - THIS IS THE KEY FIX
 const save_data = {
