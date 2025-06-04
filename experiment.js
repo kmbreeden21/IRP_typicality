@@ -39,11 +39,11 @@ const jsPsych = initJsPsych({
     }
 });
 
-// Generate participant ID
-async function generateParticipantId() {
-    const baseId = Math.floor(Math.random() * 999) + 1;
-    return `participant${baseId}`;
-}
+// // Generate participant ID
+// async function generateParticipantId() {
+//     const baseId = Math.floor(Math.random() * 999) + 1;
+//     return `participant${baseId}`;
+// }
 
 
 // Add all IDs to jsPsych data properties
