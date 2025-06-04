@@ -1,11 +1,97 @@
-var jsPsych = initJsPsych({
+// var jsPsych = initJsPsych({
+//     on_finish: function() {
+//         console.log('Experiment finished');
+//     }
+// });
+
+
+// Generate participant ID at the start
+let participant_id = `participant${Math.floor(Math.random() * 999) + 1}`;
+const completion_code = generateRandomString(3) + 'zvz' + generateRandomString(3);
+
+// Function to generate a random string of specified length
+function generateRandomString(length) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}
+
+// Function to get URL parameters
+function getUrlParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+}
+
+// Get MTurk Worker ID from URL
+const workerId = getUrlParam('workerId');
+if (!workerId) {
+    console.error('No worker ID found in URL');
+}
+
+// Initialize jsPsych with MTurk worker ID
+const jsPsych = initJsPsych({
     on_finish: function() {
         console.log('Experiment finished');
+        console.log('Worker ID:', workerId);
+        console.log('Completion Code:', completion_code);
+        console.log('Number of trials:', jsPsych.data.get()
+            .filter({trial_type: 'image-button-response'})
+            .count());
     }
 });
 
-const subject_id = jsPsych.randomization.randomID(10);
-const filename = `${subject_id}.csv`;
+// Generate participant ID
+async function generateParticipantId() {
+    const baseId = Math.floor(Math.random() * 999) + 1;
+    return `participant${baseId}`;
+}
+
+
+// Add all IDs to jsPsych data properties
+jsPsych.data.addProperties({
+    participant_id: participant_id,
+    workerId: workerId,
+    completion_code: completion_code,
+    condition: null
+});
+
+const completion_code_trial = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function() {
+        return `
+            <p>You have completed the main experiment!</p>
+            <p>Your completion code is: <strong>${completion_code}</strong></p>
+            <p>Please make a note of this code - you will need to enter it in MTurk to receive payment.</p>
+            <p>Click the button below to continue to a brief survey.</p>
+        `;
+    },
+    choices: ['Continue to Survey'],
+    data: {
+        trial_type: 'completion'
+    }
+};
+
+// Fullscreen trials
+const fullscreen_trial = {
+    type: jsPsychFullscreen,
+    fullscreen_mode: true,
+    delay_after: 0,
+    button_label: null,
+    message: null
+};
+
+const end_fullscreen = {
+    type: jsPsychFullscreen,
+    fullscreen_mode: false,
+    button_label: null,
+    message: null
+};
+
+// const subject_id = jsPsych.randomization.randomID(10);
+// const filename = `${subject_id}.csv`;
 
 function extractAllCategories(image_path_list) {
 
@@ -41,7 +127,13 @@ function extractCategory(imagePath) {
     return finalCategory;
 }
 
-const category_list = extractAllCategories(image_list)
+if (workerId == "Test") {
+    const category_list = extractAllCategories(image_list.slice(0,10))
+    image_list = image_list.slice(0, 10)
+}
+else {
+    const category_list = extractAllCategories(image_list)
+}
 
 const consent = {
     type: jsPsychHtmlButtonResponse,
@@ -124,7 +216,36 @@ var fixation = {
 //     }
 // };
 
-// Fixed trial using HTML button response plugin
+// // Fixed trial using HTML button response plugin
+// var trial = {
+//     type: jsPsychHtmlButtonResponse,
+//     stimulus: function() {
+//         const imageUrl = jsPsych.timelineVariable('image');
+//         const category = jsPsych.timelineVariable('category');
+//         console.log(imageUrl);
+//         return `
+//             <div style="text-align: center;">
+//                 <img src="${imageUrl}" style="max-width: 400px; max-height: 400px; margin-bottom: 20px;">
+//                 <p style="font-size: 18px; margin-bottom: 20px;">How typical is this object of <strong>${category}s</strong> in general?</p>
+//             </div>
+//         `;
+//     },
+//     choices: ['1<br>Very Typical', '2', '3', '4', '5<br>Very Atypical'],
+//     button_html: '<button class="jspsych-btn" style="padding: 15px 25px; font-size: 16px; margin: 5px; width: 120px; height: 60px;">%choice%</button>',
+//     prompt: '<p style="margin-top: 15px; color: #666; font-style: italic;">You can also use keyboard keys 1-5</p>',
+//     data: {
+//         task: 'typicality_rating',
+//         trial_type: 'main_trial',
+//         category: jsPsych.timelineVariable('category'),
+//         image: jsPsych.timelineVariable('image')
+//     },
+//     on_finish: function(data) {
+//         // Convert button response (0-4) to rating scale (1-5)
+//         data.rating = data.response + 1;
+//     }
+// };
+
+
 var trial = {
     type: jsPsychHtmlButtonResponse,
     stimulus: function() {
@@ -139,8 +260,7 @@ var trial = {
         `;
     },
     choices: ['1<br>Very Typical', '2', '3', '4', '5<br>Very Atypical'],
-    button_html: '<button class="jspsych-btn" style="padding: 15px 25px; font-size: 16px; margin: 5px; width: 120px; height: 60px;">%choice%</button>',
-    prompt: '<p style="margin-top: 15px; color: #666; font-style: italic;">You can also use keyboard keys 1-5</p>',
+    button_html: '<button class="jspsych-btn" style="padding: 15px 25px; font-size: 16px; margin: 5px; width: 120px; height: 60px; border: 3px solid #333; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; text-align: center; vertical-align: top;">%choice%</button>',
     data: {
         task: 'typicality_rating',
         trial_type: 'main_trial',
@@ -208,4 +328,4 @@ const save_data = {
     }
 };
 
-jsPsych.run([consent, instructions, trials_with_variables, save_data]);
+jsPsych.run([consent, fullscreen_trial, instructions, trials_with_variables, end_fullscreen, completion_code_trial, save_data]);
