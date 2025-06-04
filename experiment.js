@@ -78,6 +78,7 @@ if (workerId.startsWith("Test")) {
 else {
     category_list = extractAllCategories(imageList);
     image_list = imageList;
+    console.log(workerId.startsWith("Test"))
 }
 
 /////// INITIALIZE JSPSYCH EXPERIMENT ///////
