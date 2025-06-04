@@ -1,4 +1,4 @@
-// FUNCTION DECLARATIONS // 
+/////// FUNCTION DECLARATIONS ///////
 
 // Function to generate a random string of specified length
 function generateRandomString(length) {
@@ -16,79 +16,7 @@ function getUrlParam(param) {
     return urlParams.get(param);
 }
 
-
-// Generate participant ID and completion code for participant to add to mturk
-let participant_id = `participant${Math.floor(Math.random() * 999) + 1}`;
-const completion_code = generateRandomString(3) + 'zvz' + generateRandomString(3);
-
-// Get MTurk Worker ID from URL
-const workerId = getUrlParam('workerId');
-if (!workerId) {
-    console.error('No worker ID found in URL');
-}
-
-// Initialize jsPsych with MTurk worker ID
-const jsPsych = initJsPsych({
-    on_finish: function() {
-        console.log('Experiment finished');
-        console.log('Worker ID:', workerId);
-        console.log('Completion Code:', completion_code);
-        console.log('Number of trials:', jsPsych.data.get()
-            .filter({trial_type: 'image-button-response'})
-            .count());
-    }
-});
-
-// // Generate participant ID
-// async function generateParticipantId() {
-//     const baseId = Math.floor(Math.random() * 999) + 1;
-//     return `participant${baseId}`;
-// }
-
-
-// Add all IDs to jsPsych data properties
-jsPsych.data.addProperties({
-    participant_id: participant_id,
-    workerId: workerId,
-    completion_code: completion_code,
-    condition: null
-});
-
-const completion_code_trial = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: function() {
-        return `
-            <p>You have completed the main experiment!</p>
-            <p>Your completion code is: <strong>${completion_code}</strong></p>
-            <p>Please make a note of this code - you will need to enter it in MTurk to receive payment.</p>
-            <p>Click the button below to continue to a brief survey.</p>
-        `;
-    },
-    choices: ['Continue to Survey'],
-    data: {
-        trial_type: 'completion'
-    }
-};
-
-// Fullscreen trials
-const fullscreen_trial = {
-    type: jsPsychFullscreen,
-    fullscreen_mode: true,
-    delay_after: 0,
-    button_label: null,
-    message: null
-};
-
-const end_fullscreen = {
-    type: jsPsychFullscreen,
-    fullscreen_mode: false,
-    button_label: null,
-    message: null
-};
-
-// const subject_id = jsPsych.randomization.randomID(10);
-const filename = `${workerId}.csv`;
-
+// Function to extract all categories from a list of image names
 function extractAllCategories(image_path_list) {
 
     const resultList = [];
@@ -103,7 +31,7 @@ function extractAllCategories(image_path_list) {
 
 }
 
-// Function to extract category from image filename - matched to your actual image list
+// Function to extract a category from image filename 
 function extractCategory(imagePath) {
     console.log('Processing image:', imagePath); // Debug log
     
@@ -123,7 +51,25 @@ function extractCategory(imagePath) {
     return finalCategory;
 }
 
-if (workerId == "Test") {
+
+/////// GENERATE REQUIRED STRUCTURES FOR EXPERIMENT ///////
+
+// Generate participant ID and completion code for participant to add to mturk
+let participant_id = `participant${Math.floor(Math.random() * 999) + 1}`;
+const completion_code = generateRandomString(3) + 'zvz' + generateRandomString(3);
+
+// Get MTurk Worker ID from URL
+const workerId = getUrlParam('workerId');
+if (!workerId) {
+    console.error('No worker ID found in URL');
+}
+
+// Initialize filename based on workerId
+const filename = `${workerId}.csv`;
+
+
+// Determine whether this is a test run. If so, limit stimuli list to the first 10 stimuli
+if (workerId.startsWith("Test")) {
     category_list = extractAllCategories(imageList.slice(0,10));
     image_list = imageList.slice(0, 10);
     console.log("Test Run")
@@ -134,6 +80,45 @@ else {
     image_list = imageList;
 }
 
+/////// INITIALIZE JSPSYCH EXPERIMENT ///////
+
+// Initialize jsPsych with MTurk worker ID
+const jsPsych = initJsPsych({
+    on_finish: function() {
+        console.log('Experiment finished');
+        console.log('Worker ID:', workerId);
+        console.log('Completion Code:', completion_code);
+        console.log('Number of trials:', jsPsych.data.get()
+            .filter({trial_type: 'image-button-response'})
+            .count());
+    }
+});
+
+// Add all IDs to jsPsych data properties
+jsPsych.data.addProperties({
+    participant_id: participant_id,
+    workerId: workerId,
+    completion_code: completion_code
+});
+
+// A page that tells participants they will be moving into a fullscreen 
+const fullscreen_trial = {
+    type: jsPsychFullscreen,
+    fullscreen_mode: true,
+    delay_after: 0,
+    button_label: null,
+    message: null
+};
+
+// A page that moves participants out of fullscreen
+const end_fullscreen = {
+    type: jsPsychFullscreen,
+    fullscreen_mode: false,
+    button_label: null,
+    message: null
+};
+
+// Updated LupyanLab consent (up to date as of June 2025)
 const consent = {
     type: jsPsychHtmlButtonResponse,
     stimulus: `
@@ -168,6 +153,18 @@ const consent = {
     }
 };
 
+var instructions = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `<p class="lead">In this HIT, you will see various images of familiar objects. For each image, please rate how typical it is of its category.
+              For example, you may be shown a motorcycles and asked how typical it is of motorcyles in general. You may be shown a plate and asked how typical it is of plates in general.
+              </p> <p class="lead">Use the  1-5 keys on the keyboard to respond. 1 means very typical. 5 means very atypical. Please try to use the entire scale, not just the 1/5 keys. If you rush through without attending to the images, we may deny payment.
+              </p> ${continue_space}`
+    // data: {
+    //     task: 'instructions',
+    //     trial_type: 'instruction'
+    // }
+};
+
 // Create paired image-category objects
 var images_paired = [];
 for (let i = 0; i < image_list.length; i++) {
@@ -183,19 +180,16 @@ var images_random = jsPsych.randomization.shuffle(images_paired);
 let continue_space =
     "<div class='right small'>(press SPACE to continue)</div>";
 
-// var images_random = jsPsych.randomization.factorial(images);
-
-var fixation = {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: '+',
-    trial_duration: 500,
-    response_ends_trial: false,
-    data: {
-        task: 'fixation',
-        trial_type: 'fixation'
-    }
-};
-
+// var fixation = {
+//     type: jsPsychHtmlKeyboardResponse,
+//     stimulus: '+',
+//     trial_duration: 500,
+//     response_ends_trial: false,
+//     data: {
+//         task: 'fixation',
+//         trial_type: 'fixation'
+//     }
+// };
 
 var trial = {
     type: jsPsychHtmlButtonResponse,
@@ -229,18 +223,22 @@ var trials_with_variables = {
     timeline_variables: images_random
 };
 
-var instructions = {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: `<p class="lead">In this HIT, you will see various images of familiar objects. For each image, please rate how typical it is of its category.
-              For example, you may be shown a motorcycles and asked how typical it is of motorcyles in general. You may be shown a plate and asked how typical it is of plates in general.
-              </p> <p class="lead">Use the  1-5 keys on the keyboard to respond. 1 means very typical. 5 means very atypical. Please try to use the entire scale, not just the 1/5 keys. If you rush through without attending to the images, we may deny payment.
-              </p> ${continue_space}`
-    // data: {
-    //     task: 'instructions',
-    //     trial_type: 'instruction'
-    // }
+// Define trial to give completion code to participant and to tell them they will complete a final survey 
+const completion_code_trial = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: function() {
+        return `
+            <p>You have completed the main experiment!</p>
+            <p>Your completion code is: <strong>${completion_code}</strong></p>
+            <p>Please make a note of this code - you will need to enter it in MTurk to receive payment.</p>
+            <p>Click the button below to continue to a brief survey.</p>
+        `;
+    },
+    choices: ['Continue to Survey'],
+    data: {
+        trial_type: 'completion'
+    }
 };
-
 
 // Configure data saving - THIS IS THE KEY FIX
 const save_data = {
