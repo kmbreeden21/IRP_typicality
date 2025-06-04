@@ -58,7 +58,6 @@ jsPsych.data.addProperties({
     condition: null
 });
 
-// Create completion code trial for the end of the task
 const completion_code_trial = {
     type: jsPsychHtmlButtonResponse,
     stimulus: function() {
@@ -83,7 +82,7 @@ const fullscreen_trial = {
     button_label: null,
     message: null
 };
- //Non-fullscreen trials
+
 const end_fullscreen = {
     type: jsPsychFullscreen,
     fullscreen_mode: false,
@@ -92,7 +91,7 @@ const end_fullscreen = {
 };
 
 // const subject_id = jsPsych.randomization.randomID(10);
-// const filename = `${subject_id}.csv`;
+const filename = `${workerId}.csv`;
 
 function extractAllCategories(image_path_list) {
 
@@ -129,11 +128,14 @@ function extractCategory(imagePath) {
 }
 
 if (workerId == "Test") {
-    const category_list = extractAllCategories(image_list.slice(0,10))
-    image_list = image_list.slice(0, 10)
+    category_list = extractAllCategories(imageList.slice(0,10));
+    image_list = imageList.slice(0, 10);
+    console.log("Test Run")
+    console.log(image_list)
 }
 else {
-    const category_list = extractAllCategories(image_list)
+    category_list = extractAllCategories(imageList);
+    image_list = imageList;
 }
 
 const consent = {
@@ -171,10 +173,10 @@ const consent = {
 };
 
 // var images = {
-//     image: image_list
+//     image: imageList
 // };
 // var images = {
-//     image: image_list,
+//     image: imageList,
 //     category: category_list
 // };
 
@@ -303,10 +305,10 @@ var instructions = {
 //     ]
 //   };
 
-// Add subject ID to all data
-jsPsych.data.addProperties({
-    subject_id: subject_id
-});
+// // Add subject ID to all data
+// jsPsych.data.addProperties({
+//     subject_id: subject_id
+// });
 
 // Configure data saving - THIS IS THE KEY FIX
 const save_data = {
