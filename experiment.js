@@ -277,7 +277,7 @@ var trial = {
 };
 
 var trials_with_variables = {
-    timeline: [fixation, trial],
+    timeline: [trial],
     timeline_variables: images_random
 };
 
