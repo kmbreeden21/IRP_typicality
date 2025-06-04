@@ -68,7 +68,7 @@ const image_list = ['images/barrel1.png','images/bottleopener1.png','images/cloc
     'images/windmill1.png','images/wineglass1.png','images/wishwell1.png','images/yarn1.png','images/zebra1.png'];
 
 
-    const categoryMappings = {
+const categoryMappings = {
     'abacus': 'abacuses',
     'airpump': 'air pumps',
     'airtank': 'air tanks',
