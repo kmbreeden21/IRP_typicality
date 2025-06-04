@@ -250,7 +250,9 @@ const demographics_gender = {
         question: 'gender'
     },
     on_finish: function(data) {
-        data.response_text = data.choices[data.response];
+        jsPsych.data.addProperties({
+            gender: data.choices[data.response]
+        })
     }
 };
 
