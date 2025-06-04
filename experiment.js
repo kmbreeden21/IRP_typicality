@@ -154,6 +154,9 @@ const consent = {
     }
 };
 
+let continue_space =
+    "<div class='right small'>(press SPACE to continue)</div>";
+    
 var instructions = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `<p class="lead">In this HIT, you will see various images of familiar objects. For each image, please rate how typical it is of its category.
@@ -177,9 +180,6 @@ for (let i = 0; i < image_list.length; i++) {
 
 // Now shuffle the paired objects to randomize the order
 var images_random = jsPsych.randomization.shuffle(images_paired);
-
-let continue_space =
-    "<div class='right small'>(press SPACE to continue)</div>";
 
 // var fixation = {
 //     type: jsPsychHtmlKeyboardResponse,
