@@ -74,8 +74,7 @@ if (workerId.startsWith("Test")) {
     image_list = imageList.slice(0, 10);
     console.log("Test Run")
     console.log(image_list)
-}
-else {
+} else {
     category_list = extractAllCategories(imageList);
     image_list = imageList;
     console.log(workerId.startsWith("Test"))
