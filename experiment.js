@@ -134,7 +134,7 @@ var trial = {
         return `
             <div style="text-align: center;">
                 <img src="${imageUrl}" style="max-width: 400px; max-height: 400px; margin-bottom: 20px;">
-                <p style="font-size: 18px; margin-bottom: 20px;">How typical is this object of <strong>${category}s</strong> in general?</p>
+                <p style="font-size: 18px; margin-bottom: 20px;">How typical is this object of <strong>${category}</strong> in general?</p>
             </div>
         `;
     },
