@@ -250,9 +250,12 @@ const demographics_gender = {
         question: 'gender'
     },
     on_finish: function(data) {
+        // Store the response text based on the response index
+        const choices = ['Male', 'Female', 'Other', 'Prefer not to say'];
+        data.response_text = choices[data.response];
         jsPsych.data.addProperties({
-            gender: data.choices[data.response]
-        })
+            gender: choices[data.response]
+        });
     }
 };
 
@@ -265,7 +268,8 @@ const demographics_native = {
         question: 'native_english'
     },
     on_finish: function(data) {
-        data.response_text = data.choices[data.response];
+        const choices = ['Yes', 'No'];
+        data.response_text = choices[data.response];
         // Store response for conditional logic
         jsPsych.data.addProperties({
             native_english: data.response === 0 ? 'Yes' : 'No'
@@ -340,7 +344,16 @@ const demographics_education = {
         question: 'education'
     },
     on_finish: function(data) {
-        data.response_text = data.choices[data.response];
+        const choices = [
+            'Less than high school',
+            'High school diploma', 
+            'Some college, no degree',
+            "Associate's degree",
+            "Bachelor's degree",
+            'PhD, law, or medical degree',
+            'Prefer not to say'
+        ];
+        data.response_text = choices[data.response];
     }
 };
 
