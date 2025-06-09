@@ -3,6 +3,7 @@
 ## Overview 
 This experiment shows images to participants and asks how typical that object is of its category in general. 
 For example, "how typical is this object of clocks in general?" when the participant is shown an image of a clock. 
+Participants rate this objects on a scale from 1 to 5, 1 being very typical and 5 being very atypical. 
 
 Trial order is randomized for each participant. 
 
