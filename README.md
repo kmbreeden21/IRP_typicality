@@ -19,7 +19,7 @@ Data is saved directly to OSF at the end of the experiment.
 
 imageList: an array of strings representing the file locations for all images to be shown in the experiment
 categoryMappings: an array of image_file category name: plural category for prompt for every image. 
-  i.e. abacus1.png image file --> abacus: abacuses in the categoryMapping array
+  * i.e. abacus1.png image file --> abacus: abacuses in the categoryMapping array
   * this category mapping array must be in the order of the files in the images directory. 
 
 These data structures are read into the experiment.js file as the list of images and their plural mappings for participats to see. 
