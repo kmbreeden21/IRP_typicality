@@ -17,12 +17,12 @@ function getUrlParam(param) {
 }
 
 // Function to extract all categories from a list of image names
-function extractAllCategories(image_path_list) {
+function extractAllCategories(image_path_list, plural) {
 
     const resultList = [];
 
     for (let i = 0; i < image_path_list.length; i++) {
-    const processedImg = extractCategory(image_path_list[i]);
+    const processedImg = extractCategory(image_path_list[i], plural);
     resultList.push(processedImg);
     }
 
@@ -32,7 +32,7 @@ function extractAllCategories(image_path_list) {
 }
 
 // Function to extract a category from image filename 
-function extractCategory(imagePath) {
+function extractCategory(imagePath, plural) {
     // console.log('Processing image:', imagePath); // Debug log
     
     // Extract filename from path and remove extension
@@ -44,7 +44,11 @@ function extractCategory(imagePath) {
     // console.log('Extracted category:', category); // Debug log
     
     // Use mapping if available, otherwise return cleaned category
-    const finalCategory = categoryMappings[category];
+    if (plural == true) {
+        finalCategory = categoryPlurals[category];
+    } else {
+        finalCategory = categoryMappings[category];
+    }
     
     // console.log('Final category:', finalCategory); // Debug log
     
@@ -70,13 +74,13 @@ const filename = `${workerId}.csv`;
 
 // Determine whether this is a test run. If so, limit stimuli list to the first 10 stimuli
 if (workerId.startsWith("Test")) {
-    category_list = extractAllCategories(imageList.slice(0,10));
+    category_list = extractAllCategories(imageList.slice(0,10), true);
     image_list = imageList.slice(0, 10);
     console.log("Test Run")
     console.log(image_list)
 } else {
     console.log(workerId)
-    category_list = extractAllCategories(imageList);
+    category_list = extractAllCategories(imageList, true);
     image_list = imageList;
     console.log(workerId.startsWith("Test"))
 }
@@ -154,15 +158,16 @@ const consent = {
     }
 };
 
-let continue_space =
-    "<div class='right small'>(press SPACE to continue)</div>";
+let continue_x =
+    "<div class='right small'>(press 'x' to continue)</div>";
 
 var instructions = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `<p class="lead">In this HIT, you will see various images of familiar objects. For each image, please rate how typical it is of its category.
               For example, you may be shown a motorcycles and asked how typical it is of motorcyles in general. You may be shown a plate and asked how typical it is of plates in general.
               </p> <p class="lead">Use the  1-5 keys on the keyboard to respond. 1 means very typical. 5 means very atypical. Please try to use the entire scale, not just the 1/5 keys. If you rush through without attending to the images, we may deny payment.
-              </p> ${continue_space}`
+              </p> ${continue_x}`, 
+    choices: ['x']
     // data: {
     //     task: 'instructions',
     //     trial_type: 'instruction'
@@ -185,17 +190,51 @@ for (let i = 0; i < image_list.length; i++) {
 var images_random = jsPsych.randomization.shuffle(images_paired);
 
 
-// Show five buttons with text in them for participants to answer the Question about how typical an object is of a certain category.
+// // Show five buttons with text in them for participants to answer the Question about how typical an object is of a certain category.
+// var trial = {
+//     type: jsPsychHtmlButtonResponse,
+//     stimulus: function() {
+//         const imageUrl = jsPsych.timelineVariable('image');
+//         const category = jsPsych.timelineVariable('category');
+//         const image_name = extractCategory(jsPsych.timelineVariable('image'), false);
+//         console.log(image_name)
+//         console.log(imageUrl);
+//         return `
+//             <div style="text-align: center;">
+//                 <img src="${imageUrl}" style="max-width: 400px; max-height: 400px; margin-bottom: 20px;">
+//                 <p style="font-size: 18px; margin-bottom: 20px;">How typical is this <strong>${image_name}</strong> of <strong>${category}</strong> in general?</p>
+//             </div>
+//         `;
+//     },
+//     choices: ['1<br>Very Typical', '2', '3', '4', '5<br>Very Atypical'],
+//     button_html: '<button class="jspsych-btn" style="padding: 15px 25px; font-size: 16px; margin: 5px; width: 120px; height: 60px; border: 3px solid #333; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; text-align: center; vertical-align: top;">%choice%</button>',
+//     data: {
+//         task: 'typicality_rating',
+//         trial_type: 'main_trial',
+//         category: jsPsych.timelineVariable('category'),
+//         image: jsPsych.timelineVariable('image')
+//     },
+//     on_finish: function(data) {
+//         // Convert button response (0-4) to rating scale (1-5)
+//         data.rating = data.response + 1;
+//     }
+// };
+
+
+// Modified trial to support both button clicks AND keyboard responses
 var trial = {
     type: jsPsychHtmlButtonResponse,
     stimulus: function() {
         const imageUrl = jsPsych.timelineVariable('image');
         const category = jsPsych.timelineVariable('category');
+        const image_name = extractCategory(jsPsych.timelineVariable('image'), false);
+        console.log(image_name)
         console.log(imageUrl);
         return `
             <div style="text-align: center;">
                 <img src="${imageUrl}" style="max-width: 400px; max-height: 400px; margin-bottom: 20px;">
-                <p style="font-size: 18px; margin-bottom: 20px;">How typical is this object of <strong>${category}</strong> in general?</p>
+                <p style="font-size: 18px; margin-bottom: 20px;">How typical is this <strong>${image_name}</strong> of <strong>${category}</strong> in general?</p>
+                <p style="font-size: 14px; margin-bottom: 20px; color: #666;">Click a button below or press keys 1-5 on your keyboard</p>
             </div>
         `;
     },
@@ -207,9 +246,35 @@ var trial = {
         category: jsPsych.timelineVariable('category'),
         image: jsPsych.timelineVariable('image')
     },
+    on_load: function() {
+        // Add keyboard event listener for keys 1-5
+        const keyListener = function(e) {
+            if (e.key >= '1' && e.key <= '5') {
+                // Simulate button click for the corresponding choice
+                const buttonIndex = parseInt(e.key) - 1;
+                const buttons = document.querySelectorAll('.jspsych-btn');
+                if (buttons[buttonIndex]) {
+                    buttons[buttonIndex].click();
+                }
+            }
+        };
+        
+        document.addEventListener('keydown', keyListener);
+        
+        // Store the listener so we can remove it later
+        jsPsych.getCurrentTrial().keyListener = keyListener;
+    },
     on_finish: function(data) {
+        // Remove the keyboard event listener
+        if (jsPsych.getCurrentTrial().keyListener) {
+            document.removeEventListener('keydown', jsPsych.getCurrentTrial().keyListener);
+        }
+        
         // Convert button response (0-4) to rating scale (1-5)
         data.rating = data.response + 1;
+        
+        // Store which input method was used (we can't directly detect this, 
+        // but we could add logic to track it if needed)
     }
 };
 
@@ -230,10 +295,10 @@ const completion_code_trial = {
             <p>You have completed the main experiment!</p>
             <p>Your completion code is: <strong>${completion_code}</strong></p>
             <p>Please make a note of this code - you will need to enter it in MTurk to receive payment.</p>
-            <p>Click the button below to continue to a brief survey.</p>
+            <p>Thank you so much for you participation! </p>
         `;
     },
-    choices: ['Continue to Survey'],
+    choices: ['End Experiment'],
     data: {
         trial_type: 'completion'
     }
@@ -391,11 +456,14 @@ const demographics_timeline = {
         },
         demographics_other_languages,
         demographics_age,
-        demographics_education,
-        demographics_comments
+        demographics_education
+        // demographics_comments
     ]
 };
 
+const comments_trial = {
+    timeline: [demographics_comments]
+}
 /////// CONFIGURE THE DATA SAVING STEP ///////
 
 // Configure data saving 
@@ -421,4 +489,4 @@ const save_data = {
 
 
 /////// FINAL EXPERIMENT STRUCTURE ///////
-jsPsych.run([consent, fullscreen_trial, instructions, trials_with_variables, end_fullscreen, completion_code_trial, demographics_timeline, save_data]);
+jsPsych.run([consent, fullscreen_trial, demographics_timeline, instructions, trials_with_variables, comments_trial, save_data, end_fullscreen, completion_code_trial]);
