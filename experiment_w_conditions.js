@@ -329,6 +329,7 @@ const completion_code_trial = {
 
 ////// TO DO: ADD DEMOGRAPHICS BLOCK HERE //////
 // Demographics trials converted to jsPsych format
+
 const demographics_gender = {
     type: jsPsychHtmlButtonResponse,
     stimulus: '<p>What is your gender?</p>',
@@ -366,9 +367,10 @@ const demographics_native = {
 };
 
 const demographics_native_language = {
-    type: jsPsychSurveyText,
-    questions: [
+    type: jsPsychSurvey,
+    pages: [
         {
+            type: 'text',
             prompt: 'Please indicate your native language or languages:',
             name: 'native_language',
             required: true
@@ -385,13 +387,14 @@ const demographics_native_language = {
     }
 };
 
+
 const demographics_other_languages = {
     type: jsPsychSurveyText,
     questions: [
         {
             prompt: "What other languages do you speak? Please enter 'none' if just English.",
             name: 'other_languages',
-            required: false
+            required: true
         }
     ],
     data: {
@@ -406,7 +409,7 @@ const demographics_age = {
         {
             prompt: 'How old are you?',
             name: 'age',
-            required: false
+            required: true
         }
     ],
     data: {
