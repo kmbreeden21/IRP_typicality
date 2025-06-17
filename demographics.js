@@ -19,11 +19,13 @@ export default [
       type: 'text',
       name: 'native language',
       visibleIf: "{native}='0|No'",
+      isRequired: true,
       title: 'Please indicate your native language or languages:',
     },
     {
       type: 'text',
       name: 'languages',
+      isRequired: true,
       title: "What other languages do you speak? Please enter 'none' if just English.",
     },
     { type: 'text', name: 'age', title: 'How old are you?', width: 'auto' },
