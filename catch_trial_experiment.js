@@ -273,8 +273,8 @@ let continue_x =
 var instructions = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `<p class="lead">In this HIT, you will see various images of familiar objects. For each image, please rate how typical it is of its category.
-              For example, you may be shown a motorcycles and asked how typical it is of motorcyles in general. You may be shown a plate and asked how typical it is of plates in general.
-              </p> <p class="lead">Use the  1-5 keys on the keyboard to respond. 1 means very typical. 5 means very atypical. Please try to use the entire scale, not just the 1/5 keys. If you rush through without attending to the images, we may deny payment.
+              For example, you may be shown a motorcycle and asked how typical it is of motorcyles in general. You may be shown a plate and asked how typical it is of plates in general. You may also be shown a dog and asked how typical it is of cats. 
+              </p> <p class="lead">Use the  1-5 keys on the keyboard to respond. 1 means very typical. 5 means very atypical. Please try to use the entire scale, not just the 1 and 5 keys. If you rush through without attending to the images, we may deny payment.
               </p> ${continue_x}`, 
     choices: ['x']
 };
@@ -329,7 +329,7 @@ var trial = {
             </div>
         `;
     },
-    choices: ['1<br>Very Typical', '2<br>Typical', '3<br>Neutral', '4<br>Atypical', '5<br>Very Atypical'],
+    choices: ['1<br>Very Typical', '2', '3', '4', '5<br>Very Atypical'],
     button_html: '<button class="jspsych-btn" style="padding: 15px 25px; font-size: 16px; margin: 5px; width: 120px; height: 60px; border: 3px solid #333; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; text-align: center; vertical-align: top;">%choice%</button>',
     data: function() {
         const isCatch = jsPsych.timelineVariable('isCatchTrial');
