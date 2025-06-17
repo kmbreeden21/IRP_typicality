@@ -31,7 +31,7 @@ function extractAllCategories(image_path_list, plural) {
 
 }
 
-// Function to extract a category from image filename 
+// Function to extract a single category from a single image filename 
 function extractCategory(imagePath, plural) {
     // console.log('Processing image:', imagePath); // Debug log
     
@@ -43,7 +43,9 @@ function extractCategory(imagePath, plural) {
     
     // console.log('Extracted category:', category); // Debug log
     
-    // Use mapping if available, otherwise return cleaned category
+    // Use plural or singular category mapping. 
+    // singular is something like bubblegum --> bubble gum 
+    // plural is something like lion --> lions
     if (plural == true) {
         finalCategory = categoryPlurals[category];
     } else {
@@ -55,7 +57,7 @@ function extractCategory(imagePath, plural) {
     return finalCategory;
 }
 
-// Function to extract category for catch trials
+// Function to extract single category for catch trials
 function extractCatchCategory(imagePath, plural) {
     // Extract filename from path and remove extension
     const filename = imagePath.split('/').pop().replace(/\.(png|jpg|jpeg)$/i, '');
@@ -63,7 +65,9 @@ function extractCatchCategory(imagePath, plural) {
     // Remove numbers and get base category name
     let category = filename.replace(/\d+$/, ''); // Remove trailing numbers
     
-    // Use catch trial mappings
+    // Use plural or singular category mapping. 
+    // singular is something like bubblegum --> bubble gum 
+    // plural is something like lion --> lions
     if (plural == true) {
         return catchPlurals[category];
     } else {
@@ -301,7 +305,7 @@ var catch_trials = createCatchTrials();
 // Insert catch trials every 20 trials
 var all_trials = insertCatchTrials(images_shuffled, catch_trials, 20);
 
-// Regular trial (modified to handle both regular and catch trials)
+// Regular trial 
 var trial = {
     type: jsPsychHtmlButtonResponse,
     stimulus: function() {
