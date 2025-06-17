@@ -467,7 +467,7 @@ const demographics_other_languages = {
         {
             prompt: "What other languages do you speak? Please enter 'none' if just English.",
             name: 'other_languages',
-            required: false
+            required: true
         }
     ],
     data: {
@@ -482,7 +482,7 @@ const demographics_age = {
         {
             prompt: 'How old are you?',
             name: 'age',
-            required: false
+            required: true
         }
     ],
     data: {
