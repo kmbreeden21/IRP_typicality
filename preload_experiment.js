@@ -386,7 +386,10 @@ var trial = {
             trial_type: isCatch ? 'catch_trial' : 'main_trial',
             category: jsPsych.timelineVariable('category'),
             image: jsPsych.timelineVariable('image'),
-            is_catch_trial: isCatch
+            is_catch_trial: isCatch,
+            workerId: workerId,
+            condition: condition,
+            participant_id: participant_id
         };
     },
     on_load: function() {
@@ -416,12 +419,20 @@ var trial = {
         // Convert button response (0-4) to rating scale (1-5)
         data.rating = data.response + 1;
         
+        // Add trial number (only counting main and catch trials)
+        const currentTrialIndex = jsPsych.data.get().filter({
+            trial_type: ['main_trial', 'catch_trial']
+        }).count();
+        data.trial_number = currentTrialIndex;
+        
         // For catch trials, we expect participants to give high ratings (4-5) 
         // since the questions are nonsensical (e.g., "How typical is this lettuce of books?")
         if (data.is_catch_trial) {
             data.catch_trial_passed = data.rating >= 4; // Consider 4-5 as "correct" for catch trials
             console.log(`Catch trial: Rating ${data.rating}, Passed: ${data.catch_trial_passed}`);
         }
+        
+        console.log(`Trial ${data.trial_number}: Worker ${data.workerId}, Condition ${data.condition}`);
     }
 };
 
